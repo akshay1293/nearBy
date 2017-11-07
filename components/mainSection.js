@@ -15,7 +15,8 @@ import PlaceCard from './placecard/placeCard';
 
 export default class MainSection extends Component {
     static navigationOptions = {
-        header: null,
+        //header: null,
+        title: 'Searched Places'
     };
     render() {
         return (

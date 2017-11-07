@@ -9,30 +9,16 @@ import {
 } from 'react-native';
 import Navigator from './navigator';
 import Home from './components/home';
+import { MenuContext } from 'react-native-popup-menu';
 
 
 export default class App extends Component {
   render() {
     return (
-      <View style={styles.container}>
+      <MenuContext>
         <Navigator />
-      </View>
+      </MenuContext>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});

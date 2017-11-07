@@ -8,8 +8,7 @@ import {
     Dimensions,
     Image,
     TouchableHighlight,
-    Button
-
+    Button,
 } from 'react-native';
 import Icon from './icon';
 
@@ -21,6 +20,7 @@ export default class Home extends Component {
         this.state = {
             text: '',
             typing: false,
+            focus: false,
         }
     }
     static navigationOptions = {
@@ -44,6 +44,8 @@ export default class Home extends Component {
                         value={this.state.text}
                         returnKeyType={'search'}
                         onSubmitEditing={() => this.props.navigation.navigate('main')}
+                        onFocus={() => this.setState({ focus: true })}
+                        onBlur={() => this.setState({ focus: false })}
                     />
                     <View style={styles.searchIconContainer}>
                         <Icon name={'http://simpleicon.com/wp-content/uploads/cross.png'} />
@@ -51,6 +53,10 @@ export default class Home extends Component {
                     <View style={styles.searchIconContainer}>
                         <Icon name={'https://cdn0.iconfinder.com/data/icons/map-3/1024/location-512.png'} />
                     </View>
+                </View>
+                <View style={[styles.savedPlaces, { display: this.state.focus === true ? 'flex' : 'none', }]}>
+                    <Image style={{ height: 20, width: 20 }} source={require('../assets/bookmark.png')} />
+                    <Text style={{ paddingLeft: 5, color: '#333' }}> Saved Places</Text>
                 </View>
                 <View style={[styles.searchTextContainer, { display: this.state.text ? 'none' : 'flex' }]}>
                     <Image style={{ height: 100, width: 100 }} source={require('../assets/nearby.png')} />
@@ -89,6 +95,20 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width - 30,
         top: 12,
         elevation: 2,
+    },
+
+    savedPlaces: {
+
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        backgroundColor: '#F2F3F4',
+        width: Dimensions.get('window').width - 30,
+        top: 14,
+        elevation: 1,
+        paddingHorizontal: 8,
+        paddingVertical: 10
+
     },
 
     searchIconContainer: {

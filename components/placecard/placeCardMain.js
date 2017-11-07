@@ -29,6 +29,9 @@ export default class PlaceCardMain extends Component {
                     longitudeDelta: 0.0421,
                 }}
                 mapType={'terrain'}
+                zoomEnabled={false}
+                rotateEnabled={false}
+                scrollEnabled={false}
                 showsTraffic={true}>
             </MapView>
         );
@@ -40,17 +43,11 @@ const styles = StyleSheet.create({
     container: {
 
         display: 'flex',
-        //flexDirection: 'row',
-        //justifyContent: 'center',
-        // top: 7
-        //flex: 1,
-        //height: 100,
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        left: 0,
-        //width: Dimensions.get('window').width - 20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        flex: 1,
+        height: 100,
+        width: Dimensions.get('window').width - 20,
     },
     heading: {
 

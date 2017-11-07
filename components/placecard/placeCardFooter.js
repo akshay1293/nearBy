@@ -3,6 +3,7 @@ import {
     StyleSheet,
     Text,
     View,
+    TouchableHighlight
 } from 'react-native';
 
 
@@ -12,9 +13,9 @@ export default class PlaceCardFooter extends Component {
 
         return (
 
-            <View style={styles.container}>
+            <TouchableHighlight onPress={() => console.log('navigate pressed')} underlayColor='#f96f5c' style={styles.container}>
                 <Text style={styles.heading}>Navigate</Text>
-            </View>
+            </TouchableHighlight>
         );
     }
 }
@@ -26,11 +27,12 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
-        top: 7
+        top: 7,
+
     },
     heading: {
 
-        color: '#555',
+        color: '#FFFFFF',
         fontWeight: 'bold',
         fontSize: 16,
     }
