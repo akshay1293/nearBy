@@ -5,7 +5,8 @@ import {
     Text,
     View,
     Dimensions,
-    Modal
+    Modal,
+    TouchableHighlight
 } from 'react-native';
 import {
     Menu,
@@ -37,7 +38,9 @@ export default class PlaceCardHeader extends Component {
                 <Text style={styles.heading}>Heading Goes Here</Text>
                 <Menu>
                     <MenuTrigger>
-                        <Text style={{ fontSize: 16, fontWeight: 'bold' }}>&#9776;</Text>
+                        <View style={{ width: 30, display: 'flex' }}>
+                            <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'flex-end' }}>&#9776;</Text>
+                        </View>
                     </MenuTrigger>
                     <MenuOptions>
                         <MenuOption onSelect={() => alert('Saved')} >
@@ -49,10 +52,11 @@ export default class PlaceCardHeader extends Component {
                     </MenuOptions>
                 </Menu>
                 <Modal
-                    transparent={false}
+                    transparent={true}
                     visible={this.state.modalVisible}
+                    animationType={'fade'}
                     onRequestClose={() => { }}
-                    animationType={'slide'}
+                    style={{ height: 300, width: 300 }}
                 >
                     <Details handleClick={this.showModal.bind(this)} />
 

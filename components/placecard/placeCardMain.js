@@ -15,7 +15,7 @@ export default class PlaceCardMain extends Component {
 
         return (
 
-            <MapView style={styles.container} showsUserLocation={true} showsMyLocationButton={true}
+            <MapView style={{ flex: 1 }} showsUserLocation={true} showsMyLocationButton={true}
                 initialRegion={{
                     latitude: 28.460370,
                     longitude: 77.052913,
@@ -37,22 +37,3 @@ export default class PlaceCardMain extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-
-    container: {
-
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        flex: 1,
-        height: 100,
-        width: Dimensions.get('window').width - 20,
-    },
-    heading: {
-
-        color: '#555',
-        fontWeight: 'bold',
-        fontSize: 16,
-    }
-})

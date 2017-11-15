@@ -10,14 +10,17 @@ import {
 import Navigator from './navigator';
 import Home from './components/home';
 import { MenuContext } from 'react-native-popup-menu';
-
+import { Provider } from 'react-redux';
+import store from './redux/store/configureStore';
 
 export default class App extends Component {
   render() {
     return (
-      <MenuContext>
-        <Navigator />
-      </MenuContext>
+      <Provider store={store}>
+        <MenuContext>
+          <Navigator />
+        </MenuContext>
+      </Provider>
     );
   }
 }

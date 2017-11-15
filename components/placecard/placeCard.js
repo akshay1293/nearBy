@@ -34,10 +34,6 @@ export default class PlaceCard extends Component {
                 <View style={styles.placeCardFooterContainer}>
                     <PlaceCardFooter />
                 </View>
-                {/* <View style={styles.popUpMenu}>
-                    <Text style={styles.popUpText}>Details</Text>
-                    <Text style={styles.popUpText}>Save Place</Text>
-                </View> */}
             </View>
         );
     }
@@ -70,22 +66,4 @@ const styles = StyleSheet.create({
         backgroundColor: '#f96f5c',
         elevation: 2,
     },
-    popUpMenu: {
-        position: 'absolute',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        backgroundColor: '#FFFFFF',
-        //width: 110,
-        padding: 10,
-        left: Dimensions.get('window').width - 130,
-        top: 15,
-        elevation: 4,
-    },
-
-    popUpText: {
-        color: '#555',
-        fontWeight: 'bold',
-    }
-
 })
