@@ -18,20 +18,33 @@ export default class MainSection extends Component {
         //header: null,
         title: 'Searched Places'
     };
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+
+            placesData: this.props.navigation.state.params.data,
+        }
+    }
     render() {
+
+        //console.log(this.props.navigation.state.params.data);
         return (
             <ScrollView contentContainerStyle={styles.container}>
-                <PlaceCard />
-                <PlaceCard />
-                <PlaceCard />
-                <PlaceCard />
-                <PlaceCard />
-                <PlaceCard />
-                <PlaceCard />
-                <PlaceCard />
+                {this.renderPlaceCards()}
 
             </ScrollView>
         );
+    }
+
+    renderPlaceCards() {
+
+        return this.state.placesData.results.map((place, i) => {
+
+            return <PlaceCard place={place} key={i} />
+        })
     }
 }
 

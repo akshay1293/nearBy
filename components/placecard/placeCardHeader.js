@@ -35,7 +35,7 @@ export default class PlaceCardHeader extends Component {
         return (
 
             <View style={styles.container}>
-                <Text style={styles.heading}>Heading Goes Here</Text>
+                <Text style={styles.heading}>{this.props.placeData.name}</Text>
                 <Menu>
                     <MenuTrigger>
                         <View style={{ width: 30, display: 'flex' }}>

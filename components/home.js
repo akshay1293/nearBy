@@ -43,7 +43,7 @@ class Home extends Component {
                 this.setState({
 
                     currentLocation: {
-                        name: bestMatch.name,
+                        address: bestMatch.address,
                         latitude: bestMatch.latitude,
                         longitude: bestMatch.longitude,
                     }
@@ -56,7 +56,7 @@ class Home extends Component {
         header: null,
     };
 
-    getPlaces() {
+    getPredictions() {
 
         if (this.state.text !== null) {
 
@@ -76,6 +76,32 @@ class Home extends Component {
                     })
                 })
                 .catch(error => console.log(error.message));
+        }
+    }
+
+    getPlaces() {
+
+        let latitude = this.state.currentLocation.latitude;
+        let longitude = this.state.currentLocation.longitude;
+        let url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + latitude + ',' + longitude + '&radius=5000&type=restaurant&key=AIzaSyD0jdo4JE3HcU8BCL5MxqK7lf0EaKaKGtQ';
+        if (this.state.text !== '') {
+            fetch(url, {
+                method: 'GET'
+            })
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    //console.log(responseJson)
+                    this.props.navigation.navigate('main', { data: responseJson });
+
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+
+
+        } else {
+
+            alert('please enter a location');
         }
     }
 
@@ -123,10 +149,10 @@ class Home extends Component {
                         underlineColorAndroid='rgba(0,0,0,0)'
                         returnKeyType='search'
                         placeholder="Search for Places"
-                        onChangeText={(text) => this.setState({ text }, () => this.getPlaces())}
+                        onChangeText={(text) => this.setState({ text }, () => this.getPredictions())}
                         value={this.state.text}
                         returnKeyType={'search'}
-                        onSubmitEditing={() => this.props.navigation.navigate('main')}
+                        onSubmitEditing={() => this.getPlaces()}
                         onFocus={() => this.setState({ focus: true })}
                         onBlur={() => this.setState({ focus: false })}
                     />
@@ -147,7 +173,7 @@ class Home extends Component {
                             () => {
 
                                 this.setState({
-                                    text: this.state.currentLocation.name,
+                                    text: this.state.currentLocation.address,
                                 })
 
                             }} style={[styles.searchIconContainer, { display: this.state.focus ? 'flex' : 'none' }]}>

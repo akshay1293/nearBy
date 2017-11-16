@@ -26,10 +26,10 @@ export default class PlaceCard extends Component {
 
             <View style={styles.container}>
                 <View style={styles.placeCardHeaderContainer}>
-                    <PlaceCardHeader />
+                    <PlaceCardHeader placeData={this.props.place} />
                 </View>
                 <View style={styles.placeCardMainContainer}>
-                    <PlaceCardMain />
+                    <PlaceCardMain placeData={this.props.place} />
                 </View>
                 <View style={styles.placeCardFooterContainer}>
                     <PlaceCardFooter />
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: '#FFFFFF',
-        height: 160,
+        height: 190,
         width: Dimensions.get('window').width - 20,
         elevation: 2,
         borderRadius: 2,
