@@ -8,8 +8,9 @@ import {
     TouchableHighlight,
     Keyboard
 } from 'react-native';
+import RNGooglePlaces from 'react-native-google-places'
 import { connect } from 'react-redux';
-import { saveData } from '../redux/action';
+import { saveData, setLocation } from '../redux/action';
 
 class Result extends Component {
 
@@ -19,11 +20,24 @@ class Result extends Component {
 
             <View style={styles.container}>
                 <Image style={{ height: 16, width: 16 }} source={require('../assets/result_icon.png')} />
-                <TouchableHighlight style={styles.result} underlayColor={'#F2F3F4'}>
+                <TouchableHighlight style={styles.result} underlayColor={'#F2F3F4'} onPress={() => this.getPrefferedLocation()}>
                     <Text>{this.props.place.fullText}</Text>
                 </TouchableHighlight>
             </View>
         );
+    }
+
+    getPrefferedLocation() {
+
+        if (this.props.place.placeID !== null) {
+
+            RNGooglePlaces.lookUpPlaceByID(this.props.place.placeID)
+                .then((results) => {
+                    console.log(results)
+                    this.props.setLocation({ lat: results.latitude, lng: results.longitude, name: this.props.place.fullText })
+                })
+                .catch((error) => console.log(error.message));
+        }
     }
 }
 
@@ -53,5 +67,5 @@ const styles = StyleSheet.create({
 //this.props.mapR.lat;
 
 export default connect(({ mapR }) => ({ mapR }), {
-    saveData
+    saveData, setLocation
 })(Result);

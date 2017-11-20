@@ -45,24 +45,20 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: '#FFFFFF',
-        height: 190,
         width: Dimensions.get('window').width - 20,
         elevation: 2,
         borderRadius: 2,
         marginVertical: 5,
     },
     placeCardHeaderContainer: {
-
-        flex: 0.2
+        paddingVertical: 5
     },
 
     placeCardMainContainer: {
-
-        flex: 0.6,
+        paddingVertical: 5
     },
     placeCardFooterContainer: {
-
-        flex: 0.2,
+        paddingVertical: 5,
         backgroundColor: '#f96f5c',
         elevation: 2,
     },

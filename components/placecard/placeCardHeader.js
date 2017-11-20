@@ -46,9 +46,6 @@ export default class PlaceCardHeader extends Component {
                         <MenuOption onSelect={() => alert('Saved')} >
                             <Text style={styles.heading}>Save Place</Text>
                         </MenuOption>
-                        <MenuOption onSelect={() => this.setState({ modalVisible: true })} >
-                            <Text style={styles.heading}>Details</Text>
-                        </MenuOption>
                     </MenuOptions>
                 </Menu>
                 <Modal

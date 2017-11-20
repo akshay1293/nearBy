@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-    Platform,
     StyleSheet,
     Text,
     View,
@@ -8,13 +7,13 @@ import {
     Dimensions,
     Image,
     TouchableHighlight,
-    Button,
-    Keyboard
+    Keyboard,
+    ActivityIndicator
 } from 'react-native';
 import RNGooglePlaces from 'react-native-google-places';
 import Result from './result'
 import { connect } from 'react-redux';
-import { saveData } from '../redux/action';
+import { saveData, clearLocation } from '../redux/action';
 
 class Home extends Component {
 
@@ -23,6 +22,7 @@ class Home extends Component {
         super(props);
         this.state = {
             text: '',
+            loading: false,
             typing: false,
             focus: false,
             currentLocation: {
@@ -32,16 +32,16 @@ class Home extends Component {
             },
             places: [],
         }
+        //console.log('constructor');
     }
 
-    componentWillMount() {
-
+    componentDidMount() {
+        console.log('component did mount');
         RNGooglePlaces.getCurrentPlace()
             .then((results) => {
                 console.log(results)
                 let bestMatch = this.getBestMatch(results);
                 this.setState({
-
                     currentLocation: {
                         address: bestMatch.address,
                         latitude: bestMatch.latitude,
@@ -49,7 +49,21 @@ class Home extends Component {
                     }
                 }, () => console.log(this.state.currentLocation));
             })
-            .catch((error) => console.log(error.message));
+            .catch((error) => {
+                console.log(error.message)
+                alert('You are offline, Please Connect to Internet')
+
+            });
+    }
+
+    getMyLocation() {
+
+
+        this.setState({
+            loading: false,
+            text: this.state.currentLocation.address,
+        }, () => console.log(this.state.currentLocation));
+
     }
 
     static navigationOptions = {
@@ -69,39 +83,13 @@ class Home extends Component {
             })
                 .then((result) => {
 
-                    //console.log(result);
+                    console.log(result);
                     this.setState({
 
                         places: result,
                     })
                 })
                 .catch(error => console.log(error.message));
-        }
-    }
-
-    getPlaces() {
-
-        let latitude = this.state.currentLocation.latitude;
-        let longitude = this.state.currentLocation.longitude;
-        let url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + latitude + ',' + longitude + '&radius=5000&type=restaurant&key=AIzaSyD0jdo4JE3HcU8BCL5MxqK7lf0EaKaKGtQ';
-        if (this.state.text !== '') {
-            fetch(url, {
-                method: 'GET'
-            })
-                .then((response) => response.json())
-                .then((responseJson) => {
-                    //console.log(responseJson)
-                    this.props.navigation.navigate('main', { data: responseJson });
-
-                })
-                .catch((error) => {
-                    console.log(error);
-                })
-
-
-        } else {
-
-            alert('please enter a location');
         }
     }
 
@@ -136,8 +124,21 @@ class Home extends Component {
 
     }
 
-    render() {
+    getLocationAndNavigate() {
 
+        if (this.props.mapR.name === null) {
+
+            this.props.navigation.navigate('main', { lat: this.state.currentLocation.latitude, lng: this.state.currentLocation.longitude })
+        } else {
+
+            this.props.navigation.navigate('main', { lat: this.props.mapR.lat, lng: this.props.mapR.lng });
+        }
+    }
+
+
+
+    render() {
+        console.log('update_place:' + this.props.mapR.lat + ',' + this.props.mapR.lng);
         return (
             <View style={styles.container}>
                 <View style={styles.searchContainer}>
@@ -150,16 +151,25 @@ class Home extends Component {
                         returnKeyType='search'
                         placeholder="Search for Places"
                         onChangeText={(text) => this.setState({ text }, () => this.getPredictions())}
-                        value={this.state.text}
+                        value={this.props.mapR.name === null ? this.state.text : this.props.mapR.name}
                         returnKeyType={'search'}
-                        onSubmitEditing={() => this.getPlaces()}
+                        onSubmitEditing={() => {
+                            if (this.state.text !== '') {
+                                this.getLocationAndNavigate();
+                            } else {
+
+                                alert('please enter a location');
+                            }
+                        }
+                        }
                         onFocus={() => this.setState({ focus: true })}
                         onBlur={() => this.setState({ focus: false })}
                     />
                     <TouchableHighlight underlayColor={'#F2F3F4'}
                         onPress={() => {
 
-                            this.setState({ text: null, places: [] })
+                            this.setState({ text: null, places: [], loading: false });
+                            this.props.clearLocation();
                             Keyboard.dismiss();
                         }
 
@@ -171,10 +181,9 @@ class Home extends Component {
                     <TouchableHighlight underlayColor={'#F2F3F4'}
                         onPress={
                             () => {
+                                this.setState({ loading: true });
+                                this.getMyLocation();
 
-                                this.setState({
-                                    text: this.state.currentLocation.address,
-                                })
 
                             }} style={[styles.searchIconContainer, { display: this.state.focus ? 'flex' : 'none' }]}>
                         <Image style={{ height: 17, width: 17, }} source={require('../assets/location.png')} />
@@ -191,6 +200,10 @@ class Home extends Component {
                     <Image style={{ height: 100, width: 100, }} source={require('../assets/nearby.png')} />
                     <Text style={styles.searchText}>Enter location</Text>
                     <Text style={styles.searchText}>To find places to visit Near By</Text>
+                </View>
+                <View style={[styles.loader, { display: this.state.loading === true ? 'flex' : 'none' }]}>
+                    {/* <Image style={{ height: 30, width: 30 }} source={require('../assets/Rolling.gif')} /> */}
+                    <ActivityIndicator size={20} color={'#000'} />
                 </View>
             </View>
         );
@@ -224,6 +237,7 @@ const styles = StyleSheet.create({
         width: Dimensions.get('window').width - 30,
         top: 12,
         elevation: 2,
+
     },
 
     savedPlaces: {
@@ -283,9 +297,15 @@ const styles = StyleSheet.create({
 
         display: 'none'
 
+    },
+    loader: {
+        position: 'absolute',
+        top: 20,
+        left: 250,
+        elevation: 3
     }
 })
 
 export default connect(({ mapR }) => ({ mapR }), {
-
+    clearLocation
 })(Home);
