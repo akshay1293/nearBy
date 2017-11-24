@@ -9,14 +9,15 @@ import {
     TouchableHighlight,
     ActivityIndicator,
     Modal,
-    AsyncStorage
+    AsyncStorage,
+    Dimensions
 } from 'react-native';
 import PlaceCard from './placecard/placeCard';
+import Filter from './filter';
 
 export default class MainSection extends Component {
     static navigationOptions = {
-        //header: null,
-        title: 'Searched Places'
+        title: 'Searched Places',
     };
 
     constructor(props) {
@@ -32,6 +33,7 @@ export default class MainSection extends Component {
             placesData: [],
             isLoading: true,
             isScrolling: false,
+            modalVisibility: false,
 
         }
     }
@@ -83,16 +85,37 @@ export default class MainSection extends Component {
 
     }
 
+    handleModalClose() {
+
+        this.setState({
+            modalVisibility: false
+        })
+    }
+
     render() {
 
         if (this.state.isLoading === false) {
             return (
+                <View>
+                    <ScrollView contentContainerStyle={styles.container}>
+                        {this.renderPlaceCards()}
 
-                <ScrollView contentContainerStyle={styles.container}>
-                    {this.renderPlaceCards()}
-
-                </ScrollView>
-
+                    </ScrollView>
+                    <TouchableHighlight
+                        underlayColor={'#f5f5f5'}
+                        style={[styles.filterContainer, { display: this.props.navigation.state.params.savedPlaces === true ? 'none' : 'flex' }]}
+                        onPress={() => { this.setState({ modalVisibility: true }) }}>
+                        <Image style={{ height: 24, width: 24 }} source={require('../assets/filter.png')} />
+                    </TouchableHighlight>
+                    <Modal
+                        visible={this.state.modalVisibility}
+                        animationType={'slide'}
+                        onRequestClose={() => console.log('modal closed')}
+                        transparent={true}
+                    >
+                        <Filter handleClose={this.handleModalClose.bind(this)} />
+                    </Modal>
+                </View>
 
 
             );
@@ -101,7 +124,7 @@ export default class MainSection extends Component {
             return (
                 <View style={styles.loader}>
                     <ActivityIndicator size={30} color={'#000'} />
-                    <Text style={{ fontSize: 16, fontStyle: 'italic' }}>Getting data... </Text>
+                    <Text style={{ fontSize: 16, fontStyle: 'italic' }}>Finding Places... </Text>
                 </View>
             );
         }
@@ -141,5 +164,18 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         elevation: 3
     },
+    filterContainer: {
+
+        elevation: 14,
+        position: 'absolute',
+        //borderWidth: 0.6,
+        padding: 12,
+        borderRadius: 24,
+        borderColor: '#f96f5c',
+        backgroundColor: 'rgba(255,255,255,1)',
+        top: Dimensions.get('window').height - 150,
+        left: Dimensions.get('window').width - 70,
+
+    }
 
 })
