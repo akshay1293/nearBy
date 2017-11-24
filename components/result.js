@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import RNGooglePlaces from 'react-native-google-places'
 import { connect } from 'react-redux';
-import { saveData, setLocation } from '../redux/action';
+import { saveData, setLocation, setOrigin } from '../redux/action';
 
 class Result extends Component {
 
@@ -35,6 +35,7 @@ class Result extends Component {
                 .then((results) => {
                     console.log(results)
                     this.props.setLocation({ lat: results.latitude, lng: results.longitude, name: this.props.place.fullText })
+                    //this.props.setOrigin({ lat: results.latitude, lng: results.longitude, address: this.props.fullText })
                 })
                 .catch((error) => console.log(error.message));
         }
@@ -67,5 +68,5 @@ const styles = StyleSheet.create({
 //this.props.mapR.lat;
 
 export default connect(({ mapR }) => ({ mapR }), {
-    saveData, setLocation
+    saveData, setLocation, setOrigin
 })(Result);

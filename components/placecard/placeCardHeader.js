@@ -6,7 +6,9 @@ import {
     View,
     Dimensions,
     Modal,
-    TouchableHighlight
+    TouchableHighlight,
+    AsyncStorage,
+    ToastAndroid
 } from 'react-native';
 import {
     Menu,
@@ -27,15 +29,16 @@ export default class PlaceCardHeader extends Component {
         this.state = {
 
             modalVisible: false,
+
         }
     }
 
     render() {
-
+        // console.log(JSON.parse(this.props.placeData));
         return (
 
             <View style={styles.container}>
-                <Text style={styles.heading}>{this.props.placeData.name}</Text>
+                <Text style={[styles.heading, { paddingBottom: 5, width: 250 }]}>{this.props.placeData.name}</Text>
                 <Menu>
                     <MenuTrigger>
                         <View style={{ width: 30, display: 'flex' }}>
@@ -43,8 +46,32 @@ export default class PlaceCardHeader extends Component {
                         </View>
                     </MenuTrigger>
                     <MenuOptions>
-                        <MenuOption onSelect={() => alert('Saved')} >
-                            <Text style={styles.heading}>Save Place</Text>
+                        <MenuOption onSelect={() => {
+
+                            try {
+                                if (this.props.savedPlaces !== true) {
+                                    AsyncStorage.setItem(this.props.placeData.place_id, JSON.stringify(this.props.placeData), () => {
+
+                                        ToastAndroid.show('Place saved succesfully', ToastAndroid.SHORT);
+                                        AsyncStorage.getItem(this.props.placeData.place_id, (err, result) => {
+                                        });
+                                    });
+                                } else {
+
+                                    AsyncStorage.removeItem(this.props.placeData.place_id, () => {
+
+                                        ToastAndroid.show('place removed , Please refresh', ToastAndroid.SHORT);
+                                    });
+
+
+                                }
+
+                            } catch (error) {
+
+                                console.log(error);
+                            }
+                        }} >
+                            <Text style={styles.heading}>{this.props.savedPlaces === true ? "Remove Place" : "Save Place"}</Text>
                         </MenuOption>
                     </MenuOptions>
                 </Menu>
@@ -78,7 +105,9 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 5,
+        alignItems: 'flex-start',
+        paddingVertical: 3,
+        paddingHorizontal: 10,
         borderBottomColor: '#e7e7e7',
         borderBottomWidth: 1
 
@@ -87,7 +116,7 @@ const styles = StyleSheet.create({
 
         color: '#555',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 15,
     },
 
 })

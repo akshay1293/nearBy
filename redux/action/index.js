@@ -1,11 +1,10 @@
 import {
-    SAVE_DATA, SET_LOCATION, CLEAR_LOCATION
+    SAVE_DATA, SET_LOCATION, CLEAR_LOCATION, SET_ORIGIN
 } from '../constants/actionTypes';
 
-export const saveData = (data) => {
+export const saveData = () => {
     return {
         type: SAVE_DATA,
-        payload: data
     }
 }
 
@@ -25,3 +24,13 @@ export const clearLocation = () => {
         type: CLEAR_LOCATION
     }
 }
+
+export const setOrigin = (data) => {
+
+    return {
+
+        type: SET_ORIGIN,
+        payload: data
+    }
+}
+

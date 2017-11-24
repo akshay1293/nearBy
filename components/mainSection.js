@@ -8,7 +8,8 @@ import {
     ScrollView,
     TouchableHighlight,
     ActivityIndicator,
-    Modal
+    Modal,
+    AsyncStorage
 } from 'react-native';
 import PlaceCard from './placecard/placeCard';
 
@@ -22,11 +23,13 @@ export default class MainSection extends Component {
 
         super(props);
 
+        this.placesDataTemp = [];
+
         this.state = {
 
             latitude: this.props.navigation.state.params.lat,
             longitude: this.props.navigation.state.params.lng,
-            placesData: null,
+            placesData: [],
             isLoading: true,
             isScrolling: false,
 
@@ -34,28 +37,54 @@ export default class MainSection extends Component {
     }
 
     componentDidMount() {
-        console.log('hey');
         let latitude = this.state.latitude;
         let longitude = this.state.longitude;
         let API_KEY = 'AIzaSyD0jdo4JE3HcU8BCL5MxqK7lf0EaKaKGtQ';
         let url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + latitude + ',' + longitude + '&radius=5000&key=' + API_KEY;
 
-        fetch(url, {
-            method: 'GET'
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                this.setState({ placesData: responseJson, isLoading: false });
+        if (this.props.navigation.state.params.savedPlaces !== true) {
+            fetch(url, {
+                method: 'GET'
+            })
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    console.log(responseJson)
+                    this.setState({ placesData: responseJson.results, isLoading: false });
 
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+        } else {
+
+            AsyncStorage.getAllKeys((error, result) => {
+                //console.log(result);
+                if (result.length !== 0) {
+                    result.map((key, i) => {
+
+                        AsyncStorage.getItem(key, (error, result) => {
+                            this.setState({
+
+                                placesData: this.state.placesData.concat(JSON.parse(result)),
+
+                            }, () => console.log(this.state.placesData))
+
+                        })
+                    });
+
+                }
             })
-            .catch((error) => {
-                console.log(error);
+            this.setState({
+
+                isLoading: false,
             })
+
+        }
 
     }
 
     render() {
+
         if (this.state.isLoading === false) {
             return (
 
@@ -71,7 +100,6 @@ export default class MainSection extends Component {
 
             return (
                 <View style={styles.loader}>
-                    {/* <Image style={{ height: 30, width: 30 }} source={require('../assets/Rolling.gif')} /> */}
                     <ActivityIndicator size={30} color={'#000'} />
                     <Text style={{ fontSize: 16, fontStyle: 'italic' }}>Getting data... </Text>
                 </View>
@@ -81,12 +109,16 @@ export default class MainSection extends Component {
 
     renderPlaceCards() {
 
-        if (this.state.placesData !== null) {
+        if (this.state.placesData.length !== 0) {
 
-            return this.state.placesData.results.map((place, i) => {
-
-                return <PlaceCard place={place} key={i} />
+            return this.state.placesData.map((place, i) => {
+                if (place.rating !== undefined) {
+                    return <PlaceCard place={place} key={i} savedPlaces={this.props.navigation.state.params.savedPlaces} />
+                }
             })
+        } else {
+
+            return <View style={styles.loader}><Text style={{ fontSize: 16, fontStyle: 'italic' }}>No Places found!!</Text></View>
         }
     }
 }

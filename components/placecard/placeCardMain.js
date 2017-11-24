@@ -8,9 +8,53 @@ import {
 } from 'react-native';
 
 import MapView from 'react-native-maps';
+import { connect } from 'react-redux';
+import { saveData, clearLocation, setLocation } from '../../redux/action';
 
 
-export default class PlaceCardMain extends Component {
+class PlaceCardMain extends Component {
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+
+            distance: null,
+        }
+    }
+
+    componentDidMount() {
+        console.log(this.props.mapR.origin.lat + ',' + this.props.mapR.origin.lng);
+        let origin = {
+
+            lat: this.props.savedPlaces === true ? this.props.mapR.origin.lat : this.props.mapR.lat,
+            lng: this.props.savedPlaces === true ? this.props.mapR.origin.lng : this.props.mapR.lng,
+        }
+
+        let destination = {
+
+            lat: this.props.placeData.geometry.location.lat,
+            lng: this.props.placeData.geometry.location.lng,
+        }
+
+        let url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=' + origin.lat + ',' + origin.lng + '&destinations=' + destination.lat + ',' + destination.lng + '&key=AIzaSyAthHFQlQ7ApePt-MGU6zjH82kfCinAi7o';
+
+        fetch(url, {
+            method: 'GET'
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                //console.log(responseJson)
+                this.setState({
+
+                    distance: responseJson.rows[0].elements[0].distance.text.split(' ')[0],
+                })
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
 
     renderAvailabilityText() {
 
@@ -25,32 +69,11 @@ export default class PlaceCardMain extends Component {
 
     render() {
         return (
-
-            // <MapView style={{ flex: 1 }} showsUserLocation={true} showsMyLocationButton={true}
-            //     initialRegion={{
-            //         latitude: this.props.placeData.geometry.location.lat,
-            //         longitude: this.props.placeData.geometry.location.lng,
-            //         latitudeDelta: 0.0922,
-            //         longitudeDelta: 0.0421,
-            //     }}
-            //     region={{
-            //         latitude: this.props.placeData.geometry.location.lat,
-            //         longitude: this.props.placeData.geometry.location.lng,
-            //         latitudeDelta: 0.0922,
-            //         longitudeDelta: 0.0421,
-            //     }}
-            //     mapType={'terrain'}
-            //     zoomEnabled={false}
-            //     rotateEnabled={false}
-            //     scrollEnabled={false}
-            //     minZoomLevel={15}
-            //     showsTraffic={true}>
-            // </MapView>
             <View style={styles.container}>
                 <View style={styles.detailsContainer}>
                     <View style={styles.addressContainer}>
                         <Image style={{ height: 40, width: 40 }} source={{ uri: this.props.placeData.icon }} />
-                        <View style={{ width: 250 }}><Text style={{ fontSize: 14 }}>{this.props.placeData.vicinity}</Text></View>
+                        <View style={{ width: 250 }}><Text style={{ fontSize: 13, color: '#555' }}>{this.props.placeData.vicinity}</Text></View>
                     </View>
                     <View>
                         {this.props.placeData.opening_hours !== undefined ? this.renderAvailabilityText() : <Text style={{ color: 'lightgray', fontStyle: 'italic', paddingVertical: 5 }}>{'No Timing Info'}</Text>}
@@ -61,6 +84,14 @@ export default class PlaceCardMain extends Component {
                         <Image style={{ height: 15, width: 15 }} source={require('../../assets/rating.png')} />
                         <Text style={styles.rating}>{this.props.placeData.rating === undefined ? 'Unrated' : this.props.placeData.rating}</Text>
                         {/* <Text style={[styles.rating, { display: this.props.placeData.rating === undefined ? 'none' : 'flex' }]}>Rating</Text> */}
+                    </View>
+                    <View style={styles.distanceContainer}>
+                        {/* <Image style={{ height: 25, width: 25 }} source={require('../../assets/distance.png')} /> */}
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                            <Text style={{ fontSize: 24, color: "#444", fontWeight: 'bold' }}>{this.state.distance}</Text>
+                            <Text style={{ padding: 2, color: '#444' }}>km</Text>
+                        </View>
+                        <Text>(approx.)</Text>
                     </View>
                 </View>
             </View>
@@ -94,16 +125,13 @@ const styles = StyleSheet.create({
     sideContainer: {
         flexDirection: 'column',
         flex: 2,
-        //borderBottomColor: '#999',
-        //borderBottomWidth: 1,
-
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
         padding: 2,
-        //backgroundColor: '#FFEC33',
+        flex: 0.1,
         elevation: 0,
         borderRadius: 4,
         marginRight: 3,
@@ -114,5 +142,17 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#777',
         fontWeight: 'bold'
-    }
+    },
+    distanceContainer: {
+        flexDirection: 'column',
+        flex: 0.9,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingRight: 5,
+    },
 })
+
+export default connect(({ mapR }) => ({ mapR }), {
+
+})(PlaceCardMain);
+

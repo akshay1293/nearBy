@@ -13,7 +13,7 @@ import {
 import RNGooglePlaces from 'react-native-google-places';
 import Result from './result'
 import { connect } from 'react-redux';
-import { saveData, clearLocation } from '../redux/action';
+import { saveData, clearLocation, setLocation, setOrigin } from '../redux/action';
 
 class Home extends Component {
 
@@ -32,11 +32,10 @@ class Home extends Component {
             },
             places: [],
         }
-        //console.log('constructor');
     }
 
     componentDidMount() {
-        console.log('component did mount');
+
         RNGooglePlaces.getCurrentPlace()
             .then((results) => {
                 console.log(results)
@@ -47,7 +46,10 @@ class Home extends Component {
                         latitude: bestMatch.latitude,
                         longitude: bestMatch.longitude,
                     }
-                }, () => console.log(this.state.currentLocation));
+                }, () => {
+                    this.props.setOrigin({ lat: this.state.currentLocation.latitude, lng: this.state.currentLocation.longitude, address: this.state.currentLocation.address })
+
+                });
             })
             .catch((error) => {
                 console.log(error.message)
@@ -58,11 +60,10 @@ class Home extends Component {
 
     getMyLocation() {
 
-
         this.setState({
             loading: false,
-            text: this.state.currentLocation.address,
-        }, () => console.log(this.state.currentLocation));
+            text: this.props.mapR.origin.address,
+        }, () => console.log(this.props.mapR.origin.address));
 
     }
 
@@ -127,18 +128,18 @@ class Home extends Component {
     getLocationAndNavigate() {
 
         if (this.props.mapR.name === null) {
-
-            this.props.navigation.navigate('main', { lat: this.state.currentLocation.latitude, lng: this.state.currentLocation.longitude })
+            this.props.setLocation({ lat: this.state.currentLocation.latitude, lng: this.state.currentLocation.longitude });
+            this.props.navigation.navigate('main', { lat: this.state.currentLocation.latitude, lng: this.state.currentLocation.longitude, savedPlaces: false })
         } else {
 
-            this.props.navigation.navigate('main', { lat: this.props.mapR.lat, lng: this.props.mapR.lng });
+            this.props.navigation.navigate('main', { lat: this.props.mapR.lat, lng: this.props.mapR.lng, savedPlaces: false });
         }
     }
 
 
 
     render() {
-        console.log('update_place:' + this.props.mapR.lat + ',' + this.props.mapR.lng);
+        //console.log('update_place:' + this.props.mapR.lat + ',' + this.props.mapR.lng);
         return (
             <View style={styles.container}>
                 <View style={styles.searchContainer}>
@@ -155,6 +156,8 @@ class Home extends Component {
                         returnKeyType={'search'}
                         onSubmitEditing={() => {
                             if (this.state.text !== '') {
+                                this.setState({ places: [], text: '' })
+                                Keyboard.dismiss();
                                 this.getLocationAndNavigate();
                             } else {
 
@@ -189,10 +192,18 @@ class Home extends Component {
                         <Image style={{ height: 17, width: 17, }} source={require('../assets/location.png')} />
                     </TouchableHighlight>
                 </View>
-                <View style={[styles.savedPlaces, { display: this.state.focus === true ? 'flex' : 'none', }]}>
-                    <Image style={{ height: 20, width: 20 }} source={require('../assets/bookmark.png')} />
-                    <Text style={{ paddingLeft: 5, color: '#333' }}> Saved Places</Text>
-                </View>
+                <TouchableHighlight underlayColor={'#F2F3F4'} style={[styles.savedPlaces, { display: this.state.focus === true ? 'flex' : 'none', }]}
+
+                    onPress={() => {
+                        Keyboard.dismiss();
+                        this.props.navigation.navigate('main', { lat: null, lng: null, savedPlaces: true });
+                    }}
+                >
+                    <View style={{ flexDirection: 'row' }} >
+                        <Image style={{ height: 20, width: 20 }} source={require('../assets/bookmark.png')} />
+                        <Text style={{ paddingLeft: 5, color: '#333' }}> Saved Places</Text>
+                    </View>
+                </TouchableHighlight>
                 <View style={[styles.resultContainer, { display: this.state.places.length !== 0 ? 'flex' : 'none' }]}>
                     {this.renderSuggestions()}
                 </View>
@@ -307,5 +318,5 @@ const styles = StyleSheet.create({
 })
 
 export default connect(({ mapR }) => ({ mapR }), {
-    clearLocation
+    clearLocation, setLocation, setOrigin
 })(Home);
