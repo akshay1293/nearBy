@@ -10,12 +10,15 @@ import {
     ActivityIndicator,
     Modal,
     AsyncStorage,
-    Dimensions
+    Dimensions,
+    RefreshControl
 } from 'react-native';
 import PlaceCard from './placecard/placeCard';
-import Filter from './filter';
+import Filter from './filter/filter';
+import { connect } from 'react-redux';
+import { applyFilter } from '../redux/action'
 
-export default class MainSection extends Component {
+class MainSection extends Component {
     static navigationOptions = {
         title: 'Searched Places',
     };
@@ -34,11 +37,13 @@ export default class MainSection extends Component {
             isLoading: true,
             isScrolling: false,
             modalVisibility: false,
+            refreshing: false,
 
         }
     }
 
     componentDidMount() {
+        console.log('ioh');
         let latitude = this.state.latitude;
         let longitude = this.state.longitude;
         let API_KEY = 'AIzaSyD0jdo4JE3HcU8BCL5MxqK7lf0EaKaKGtQ';
@@ -85,26 +90,66 @@ export default class MainSection extends Component {
 
     }
 
+    handleRefresh() {
+        console.log('refreshing');
+
+        this.setState({
+
+            refreshing: true,
+        })
+        if (this.props.filterRed.filter !== null) {
+            let latitude = this.state.latitude;
+            let longitude = this.state.longitude;
+            let API_KEY = 'AIzaSyD0jdo4JE3HcU8BCL5MxqK7lf0EaKaKGtQ';
+            let url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + latitude + ',' + longitude + '&radius=5000&type=' + this.props.filterRed.filter + '&key=' + API_KEY;
+
+            fetch(url, {
+                method: 'GET'
+            })
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    console.log(responseJson)
+                    this.setState({ placesData: responseJson.results, isLoading: false, refreshing: false }, () => this.props.applyFilter({ applied: false }));
+
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
+
+        }
+
+    }
+
     handleModalClose() {
 
         this.setState({
             modalVisibility: false
         })
+
+        if (this.props.filterRed.applied === true) {
+            this.refs._scrollView.scrollTo({ y: 0 });
+            this.handleRefresh();
+        }
     }
 
     render() {
 
+
         if (this.state.isLoading === false) {
             return (
                 <View>
-                    <ScrollView contentContainerStyle={styles.container}>
+                    <ScrollView
+                        overScrollMode={'always'}
+                        ref={'_scrollView'}
+                        refreshControl={<RefreshControl refreshing={this.state.refreshing} enabled={true} />}
+                        contentContainerStyle={styles.container}>
                         {this.renderPlaceCards()}
-
                     </ScrollView>
+
                     <TouchableHighlight
                         underlayColor={'#f5f5f5'}
                         style={[styles.filterContainer, { display: this.props.navigation.state.params.savedPlaces === true ? 'none' : 'flex' }]}
-                        onPress={() => { this.setState({ modalVisibility: true }) }}>
+                        onPress={() => { this.setState({ modalVisibility: true }); }}>
                         <Image style={{ height: 24, width: 24 }} source={require('../assets/filter.png')} />
                     </TouchableHighlight>
                     <Modal
@@ -179,3 +224,7 @@ const styles = StyleSheet.create({
     }
 
 })
+
+export default connect(({ filterRed }) => ({ filterRed }), {
+    applyFilter
+})(MainSection);

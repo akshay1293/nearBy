@@ -3,37 +3,50 @@ import {
     StyleSheet,
     Text,
     View,
-    TextInput,
-    Dimensions,
-    Image,
     TouchableHighlight,
-    Keyboard,
-    ActivityIndicator,
-    ScrollView
+    FlatList,
+    RefreshControl
 } from 'react-native';
 
-export default class Filter extends Component {
+import FilterContent from './filterContent';
+import { connect } from 'react-redux';
+import { applyFilter } from '../../redux/action';
 
+class Filter extends Component {
+
+    constructor(props) {
+
+        super(props);
+    }
 
     render() {
+        console.log(this.props.filterRed.filter);
+        let filters = ['Hospitals', 'Restaurants', 'Bars', 'Petrol', 'Hotels', 'Schools', 'Institutes', 'ATM'];
 
         return (
 
             <View style={styles.container}>
                 <View style={styles.filterContainer}>
                     <View style={styles.filterHeader}>
-                        <TouchableHighlight style={[styles.button, { backgroundColor: 'yellowgreen' }]}>
+                        <TouchableHighlight
+                            onPress={() => {
+                                //this.props.applyFilter({ applied: true })
+                                this.handleClick();
+
+                            }}
+                            style={[styles.button, { backgroundColor: '#00b359' }]}>
                             <Text style={{ color: '#FFF' }}>Apply</Text>
                         </TouchableHighlight>
-                        <TouchableHighlight style={[styles.button, { backgroundColor: 'red' }]} onPress={() => this.handleClick()} >
+                        <TouchableHighlight style={[styles.button, { backgroundColor: '#ff4d4d' }]} onPress={() => this.handleClick()} >
                             <Text style={{ color: '#FFF' }}>Cancel</Text>
                         </TouchableHighlight>
                     </View>
-                    <ScrollView>
-                        {this.renderFilterList()}
-                    </ScrollView>
-                </View>
+                    <FlatList
+                        data={filters.sort()}
+                        renderItem={(data) => <FilterContent name={data} />}
 
+                    />
+                </View>
             </View>
         );
     }
@@ -43,29 +56,6 @@ export default class Filter extends Component {
         this.props.handleClose();
     }
 
-    renderFilterList() {
-
-        let filters = ['Hospitals', 'Restaurants', 'Petrol pumps', 'Hotels', 'Schools', 'Parks'];
-        return filters.map((filter, i) => {
-
-            return (
-                <FilterContent key={i} name={filter} />
-            );
-        })
-    }
-}
-
-const FilterContent = (props) => {
-
-    return (
-        <TouchableHighlight style={{ padding: 8, borderBottomWidth: 0.5, borderColor: 'lightgray' }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontWeight: 'bold' }}>{props.name}</Text>
-                <Image style={{ height: 16, width: 16 }} source={require('../assets/selected.png')} />
-            </View>
-        </TouchableHighlight>
-
-    );
 }
 
 const styles = StyleSheet.create({
@@ -96,7 +86,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         borderBottomWidth: 1,
         paddingVertical: 5,
-        // borderColor: 'lightgray'
     },
     button: {
 
@@ -105,3 +94,7 @@ const styles = StyleSheet.create({
         borderRadius: 3
     }
 })
+
+export default connect(({ filterRed }) => ({ filterRed }), {
+    applyFilter
+})(Filter);
