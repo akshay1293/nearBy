@@ -11,12 +11,13 @@ import {
     Modal,
     AsyncStorage,
     Dimensions,
-    RefreshControl
+    RefreshControl,
+    NetInfo
 } from 'react-native';
 import PlaceCard from './placecard/placeCard';
 import Filter from './filter/filter';
 import { connect } from 'react-redux';
-import { applyFilter } from '../redux/action'
+import { applyFilter, setCurrentFilter, setPreviousFilter } from '../redux/action'
 
 class MainSection extends Component {
     static navigationOptions = {
@@ -43,25 +44,36 @@ class MainSection extends Component {
     }
 
     componentDidMount() {
-        console.log('ioh');
+
         let latitude = this.state.latitude;
         let longitude = this.state.longitude;
         let API_KEY = 'AIzaSyD0jdo4JE3HcU8BCL5MxqK7lf0EaKaKGtQ';
         let url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + latitude + ',' + longitude + '&radius=5000&key=' + API_KEY;
 
-        if (this.props.navigation.state.params.savedPlaces !== true) {
-            fetch(url, {
-                method: 'GET'
-            })
-                .then((response) => response.json())
-                .then((responseJson) => {
-                    console.log(responseJson)
-                    this.setState({ placesData: responseJson.results, isLoading: false });
 
-                })
-                .catch((error) => {
-                    console.log(error);
-                })
+        if (this.props.navigation.state.params.savedPlaces !== true) {
+            NetInfo.isConnected.fetch().then(isConnected => {
+
+                if (isConnected) {
+
+                    fetch(url, {
+                        method: 'GET',
+                    })
+                        .then((response) => response.json())
+                        .then((responseJson) => {
+                            console.log(responseJson)
+                            this.setState({ placesData: responseJson.results, isLoading: false });
+
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        })
+                } else {
+
+                    alert('you are offline');
+                }
+            });
+
         } else {
 
             AsyncStorage.getAllKeys((error, result) => {
@@ -91,8 +103,6 @@ class MainSection extends Component {
     }
 
     handleRefresh() {
-        console.log('refreshing');
-
         this.setState({
 
             refreshing: true,
@@ -120,13 +130,13 @@ class MainSection extends Component {
 
     }
 
-    handleModalClose() {
-
+    handleModalClose(type) {
+        console.log(type);
         this.setState({
             modalVisibility: false
         })
 
-        if (this.props.filterRed.applied === true) {
+        if (this.props.filterRed.applied === true && type === 'apply') {
             this.refs._scrollView.scrollTo({ y: 0 });
             this.handleRefresh();
         }
@@ -139,7 +149,6 @@ class MainSection extends Component {
             return (
                 <View>
                     <ScrollView
-                        overScrollMode={'always'}
                         ref={'_scrollView'}
                         refreshControl={<RefreshControl refreshing={this.state.refreshing} enabled={true} />}
                         contentContainerStyle={styles.container}>
@@ -149,8 +158,12 @@ class MainSection extends Component {
                     <TouchableHighlight
                         underlayColor={'#f5f5f5'}
                         style={[styles.filterContainer, { display: this.props.navigation.state.params.savedPlaces === true ? 'none' : 'flex' }]}
-                        onPress={() => { this.setState({ modalVisibility: true }); }}>
-                        <Image style={{ height: 24, width: 24 }} source={require('../assets/filter.png')} />
+                        onPress={() => {
+                            this.setState({ modalVisibility: true });
+                            this.props.setCurrentFilter({ current: null });
+                            this.props.setPreviousFilter({ previous: null });
+                        }}>
+                        <Image style={{ height: 24, width: 24 }} source={require('../assets/filter_white.png')} />
                     </TouchableHighlight>
                     <Modal
                         visible={this.state.modalVisibility}
@@ -211,13 +224,13 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
 
-        elevation: 14,
+        elevation: 20,
         position: 'absolute',
         //borderWidth: 0.6,
         padding: 12,
         borderRadius: 24,
         borderColor: '#f96f5c',
-        backgroundColor: 'rgba(255,255,255,1)',
+        backgroundColor: '#f96f5c',
         top: Dimensions.get('window').height - 150,
         left: Dimensions.get('window').width - 70,
 
@@ -226,5 +239,5 @@ const styles = StyleSheet.create({
 })
 
 export default connect(({ filterRed }) => ({ filterRed }), {
-    applyFilter
+    applyFilter, setCurrentFilter, setPreviousFilter
 })(MainSection);

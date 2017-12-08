@@ -1,5 +1,5 @@
 import {
-    SAVE_DATA, SET_LOCATION, CLEAR_LOCATION, SET_ORIGIN, APPLY_FILTER, CLEAR_FILTER, SET_FILTER
+    SAVE_DATA, SET_LOCATION, CLEAR_LOCATION, SET_ORIGIN, APPLY_FILTER, CLEAR_FILTER, SET_FILTER, SET_CURRENT_FILTER, SET_PREVIOUS_FILTER
 } from '../constants/actionTypes';
 
 export const saveData = () => {
@@ -49,6 +49,24 @@ export const applyFilter = (data) => {
 
         type: APPLY_FILTER,
         payload: data
+    }
+}
+
+export const setCurrentFilter = (data) => {
+
+    return {
+
+        type: SET_CURRENT_FILTER,
+        payload: data,
+    }
+}
+
+export const setPreviousFilter = (data) => {
+
+    return {
+
+        type: SET_PREVIOUS_FILTER,
+        payload: data,
     }
 }
 

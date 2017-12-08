@@ -20,6 +20,7 @@ class Filter extends Component {
     }
 
     render() {
+
         console.log(this.props.filterRed.filter);
         let filters = ['Hospitals', 'Restaurants', 'Bars', 'Petrol', 'Hotels', 'Schools', 'Institutes', 'ATM'];
 
@@ -31,29 +32,28 @@ class Filter extends Component {
                         <TouchableHighlight
                             onPress={() => {
                                 //this.props.applyFilter({ applied: true })
-                                this.handleClick();
+                                this.handleClick('apply');
 
                             }}
                             style={[styles.button, { backgroundColor: '#00b359' }]}>
                             <Text style={{ color: '#FFF' }}>Apply</Text>
                         </TouchableHighlight>
-                        <TouchableHighlight style={[styles.button, { backgroundColor: '#ff4d4d' }]} onPress={() => this.handleClick()} >
+                        <TouchableHighlight style={[styles.button, { backgroundColor: '#ff4d4d' }]} onPress={() => this.handleClick('cancel')} >
                             <Text style={{ color: '#FFF' }}>Cancel</Text>
                         </TouchableHighlight>
                     </View>
                     <FlatList
                         data={filters.sort()}
                         renderItem={(data) => <FilterContent name={data} />}
-
                     />
                 </View>
             </View>
         );
     }
 
-    handleClick() {
+    handleClick(type) {
 
-        this.props.handleClose();
+        this.props.handleClose(type);
     }
 
 }
